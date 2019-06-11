@@ -12,7 +12,8 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 
-#include "mypage.h"
+#include "pagehelper.h"
+#include "isrhelper.h"
 
 #define DEVNAME "isrhook"
 
@@ -61,7 +62,7 @@ static int isrhook_init(void)
     struct tagMyPageHelper page_helper;
     uint64_t lapic_base_pa = 0xfee00000;
     uint32_t data;
-    
+    uint32_t cpuidinfo[4];
     /**/
     devno = MKDEV(major, 0);
     if (major)
@@ -121,6 +122,7 @@ static int isrhook_init(void)
     data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
     printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
     
+    cpuid_helper(1, cpuidinfo);
     //
     return 0;
 }
