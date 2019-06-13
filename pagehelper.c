@@ -46,12 +46,16 @@ int allocate_kernel_continuous_4k_pages(struct tagMyPageHelper *page_helper)
     pml4val = *(uint64_t *)tmpva;
     *(uint64_t *)tmpva |= 0x7;
     pml4val = *(uint64_t *)tmpva;
+    printk(KERN_ALERT "pml4val val is 0x%016llx\n", pml4val);
+
 
     pdptpaaddr = (pml4val & mask_5112) + ((vaaddress & mask_pdpt) >> 30) * 8;
     tmpva = (uint64_t)(uint64_t *)phys_to_virt((phys_addr_t)pdptpaaddr);
     pdptval = *(uint64_t *)tmpva;
     *(uint64_t *)tmpva |= 0x7;
     pdptval = *(uint64_t *)tmpva;
+    printk(KERN_ALERT "pdptval val is 0x%016llx\n", pdptval);
+
 
     pdepaaddr = (pdptval & mask_5112) + ((vaaddress & mask_pde) >> 21) * 8;
     tmpva = (uint64_t)(uint64_t *)phys_to_virt((phys_addr_t)pdepaaddr);
@@ -61,7 +65,7 @@ int allocate_kernel_continuous_4k_pages(struct tagMyPageHelper *page_helper)
 
     if (pdeval & (1 << 7))
     {
-        printk(KERN_ALERT "isrhook allocate a 2M page\n");
+        printk(KERN_ALERT "isrhook allocate a 2M page, pde val is 0x%016llx\n", pdeval);
         page_helper->flag2Mpage = 1;
     }
     else

@@ -104,25 +104,25 @@ static int isrhook_init(void)
     device_create(my_class, NULL, devno, NULL, DEVNAME);
     printk(KERN_ALERT "isrhook init\n");
 
-    page_helper.order = 0;
+    page_helper.order = 10;
     allocate_kernel_continuous_4k_pages(&page_helper);
-    data =  read_mmio_32bit_by_pagehelper(lapic_base_pa + 0x320, page_helper);
+    data =  read_mmio_32bit_by_pagehelper(0xfed00010, page_helper);
     printk(KERN_ALERT "isrhook data by mypage is 0x%016llx\n", (uint64_t)data);
-    set_bit(data,17);
-    write_mmio_32bit_by_pagehelper(lapic_base_pa + 0x320,data, page_helper);
+    //set_bit(data,17);
+    //write_mmio_32bit_by_pagehelper(lapic_base_pa + 0x320,data, page_helper);
     free_continuous_page(page_helper);
 
-    data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
-    printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
-    clear_bit(data,17);
-    printk(KERN_ALERT "isrhook data is 0x%016llx\n",(uint64_t)data);
+    //data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
+    //printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
+    //clear_bit(data,17);
+    //printk(KERN_ALERT "isrhook data is 0x%016llx\n",(uint64_t)data);
 
-    write_mmio_32bit_by_ioremap(lapic_base_pa + 0x320,data);
+    //write_mmio_32bit_by_ioremap(lapic_base_pa + 0x320,data);
    
-    data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
-    printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
+    //data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
+    //printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
     
-    cpuid_helper(1, cpuidinfo);
+    //cpuid_helper(1, cpuidinfo);
     //
     return 0;
 }
