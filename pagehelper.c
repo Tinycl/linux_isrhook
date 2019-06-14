@@ -17,6 +17,15 @@ int allocate_kernel_continuous_4k_pages(struct tagMyPageHelper *page_helper)
     uint64_t pml4paaddr, pdptpaaddr, pdepaaddr, ptepaaddr;
     uint64_t pml4val, pdptval, pdeval, pteval;
     uint64_t cr3, tmppa, tmpva;
+    uint64_t cr4;
+    
+    cr4 = __read_cr4();
+    printk("cr4 is 0x%x \n", cr4);
+    cr4 = cr4 & (~0x200000); // if support smap, need disab smap, every core need disable
+    __write_cr4(cr4);
+    cr4 = __read_cr4();
+    printk("cr4 is 0x%x \n", cr4);
+
     cr3 = __read_cr3();
     printk(KERN_ALERT "ishook current cr3 is 0x%016llx \n", cr3);
     /*kernel page 4k GFP_ATOMIC,line mapping, can use in the interrupt, */

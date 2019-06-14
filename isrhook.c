@@ -64,6 +64,16 @@ static int isrhook_init(void)
     uint32_t data;
     uint32_t cpuidinfo[4];
     /**/
+    /*
+    uint64_t cr4;
+    
+    cr4 = __read_cr4();
+    printk("cr4 is 0x%x \n", cr4);
+    cr4 = cr4 & (~0x200000); // if support smap, need disab smap, every core need disable
+    __write_cr4(cr4);
+    cr4 = __read_cr4();
+    printk("cr4 is 0x%x \n", cr4);
+*/
     devno = MKDEV(major, 0);
     if (major)
     {
@@ -103,6 +113,8 @@ static int isrhook_init(void)
     }
     device_create(my_class, NULL, devno, NULL, DEVNAME);
     printk(KERN_ALERT "isrhook init\n");
+    
+
 
     page_helper.order = 10;
     allocate_kernel_continuous_4k_pages(&page_helper);
