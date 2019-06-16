@@ -116,8 +116,11 @@ static int isrhook_init(void)
     
 
 
-    page_helper.order = 10;
-    allocate_kernel_continuous_4k_pages(&page_helper);
+    page_helper.order = 0;
+    if(allocate_kernel_continuous_4k_pages(&page_helper))
+    {
+        return 1;
+    }
     data =  read_mmio_32bit_by_pagehelper(0xfed00010, page_helper);
     printk(KERN_ALERT "isrhook data by mypage is 0x%016llx\n", (uint64_t)data);
     //set_bit(data,17);
@@ -136,6 +139,7 @@ static int isrhook_init(void)
     
     //cpuid_helper(1, cpuidinfo);
     //
+    backup_idt_gate_descriptors(0);
     return 0;
 }
 

@@ -1,6 +1,6 @@
 ifneq ($(KERNELRELEASE),)
 	obj-m	= hook.o
-	hook-objs = isrhook.o pagehelper.o isrhelper.o
+	hook-objs = isrhook.o pagehelper.o isrhelper.o asmhelper.o
 else
 	KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 	PWD	:= $(shell pwd)

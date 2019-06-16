@@ -20,11 +20,16 @@ int allocate_kernel_continuous_4k_pages(struct tagMyPageHelper *page_helper)
     uint64_t cr4;
     
     cr4 = __read_cr4();
-    printk("cr4 is 0x%x \n", cr4);
-    cr4 = cr4 & (~0x200000); // if support smap, need disab smap, every core need disable
-    __write_cr4(cr4);
-    cr4 = __read_cr4();
-    printk("cr4 is 0x%x \n", cr4);
+    printk("cr4 is 0x%llx \n", cr4);
+    // if support smap, need disab smap, every core need disable
+    if(GET_BIT(cr4,21) != 0x0)
+    {
+         cr4 = cr4 & (~0x200000); 
+         __write_cr4(cr4);
+        cr4 = __read_cr4();
+        printk("cr4 is 0x%llx \n", cr4);
+    }
+   
 
     cr3 = __read_cr3();
     printk(KERN_ALERT "ishook current cr3 is 0x%016llx \n", cr3);
@@ -46,7 +51,11 @@ int allocate_kernel_continuous_4k_pages(struct tagMyPageHelper *page_helper)
     }
 
     printk(KERN_ALERT "isrhook allocate continuous 4k pages virtual address is 0x%016llx \n", vaaddress);
-
+    if(vaaddress == 0x0)
+    {
+        printk("ishook __get_free_page fail\n");
+        return 2;
+    }
     tmppa = (uint64_t)(uint64_t *)virt_to_phys((void *)vaaddress);
     printk(KERN_ALERT "isrhook allocate continuous 4k pages physical address is 0x%016llx \n", tmppa);
 

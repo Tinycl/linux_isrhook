@@ -6,11 +6,12 @@
 #include <linux/mm.h>
 #include <linux/module.h>
 #include <asm/io.h>
+#include "typehelper.h"
 
-#define set_bit(data,n) (data |= 1<<n)
-#define clear_bit(data,n) (data &= ~(1<<n))
-#define get_bit(data,n) (data&(1<<n)) // get n bit 
-#define cpl_bit(data,n) (data^=(1<<n)) // n bit reverse
+#define SET_BIT(data,n) (data |= 1<<n)//data: 0xaa=1010 1010 -> n:0 0xab
+#define CLEAR_BIT(data,n) (data &= ~(1<<n)) //data: 0xaa=1010 1010 -> n:1 0xa8
+#define GET_BIT(data,n) (data&(1<<n)) //data: 0xaa= 1010 1010 -> n:0 0x0; n:1 0x2; n:3 0x8
+#define NOT_BIT(data,n) (data^=(1<<n)) //data: 0xaa= 1010 1010 -> n:1 0xa8
 struct tagMyPageHelper
 {
     unsigned int order; //how many 4k page
