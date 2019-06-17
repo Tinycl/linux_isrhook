@@ -1,7 +1,7 @@
 
 .global save_fpu_mmx_xmm_mxcsr_state;
 .global save_processor_extended_state;
-.global hook_core0_isr_fun;
+.global hook_core0_isr_asm_fun;
 
 
 .code64
@@ -39,7 +39,8 @@ save_processor_extended_state:
     popq %rax;
     retq;
 
-hook_core0_isr_fun:
+.align 0x100;
+hook_core0_isr_asm_fun:
     pushfq; #save rflag , rsp - 8
 
     jmp hook_core0_label;
@@ -74,16 +75,16 @@ hook_core0_label:
     ## rflags +24
     ## cs +16
     ## rip +8
-    ## error code +0   rsp 
-    movq 16(%rsp), %rax;
+    ## error code +0   rsp   some interrupt and exception have no error node, such this
+    movq 8(%rsp), %rax;
     movq %rax, (backup_rip); # pushfq lead rsp-8
-    movq 24(%rsp), %rax;
+    movq 16(%rsp), %rax;
     movq %rax, (backup_cs);
-    movq 32(%rsp), %rax;
+    movq 24(%rsp), %rax;
     movq %rax, (backup_rflags);
-    movq 40(%rsp), %rax;
+    movq 32(%rsp), %rax;
     movq %rax, (backup_rsp);
-    movq 48(%rsp), %rax;
+    movq 40(%rsp), %rax;
     movq %rax, (backup_ss);
 
     mov %ds, (backup_ds);
@@ -111,6 +112,8 @@ hook_core0_label:
     str  (backup_tr);
 
     #call hook isr
+
+    callq hook_core0_isr_c_fun;
 
     #restore 
     mov (backup_r15), %r15;

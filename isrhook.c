@@ -11,9 +11,11 @@
 #include <linux/cdev.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
+#include <linux/delay.h>
 
 #include "pagehelper.h"
 #include "isrhelper.h"
+#include "asmhelper.h"
 
 #define DEVNAME "isrhook"
 
@@ -26,6 +28,7 @@ static struct cdev cdevice;
 dev_t devno;
 struct class *my_class;
 
+struct tagMyPageHelper page_helper;
 
 static int isrhook_open(struct inode *pinode, struct file *pflie)
 {
@@ -59,21 +62,10 @@ static int isrhook_init(void)
     int result;
 
     /**/
-    struct tagMyPageHelper page_helper;
-    uint64_t lapic_base_pa = 0xfee00000;
+ 
     uint32_t data;
-    uint32_t cpuidinfo[4];
+    unsigned char core;
     /**/
-    /*
-    uint64_t cr4;
-    
-    cr4 = __read_cr4();
-    printk("cr4 is 0x%x \n", cr4);
-    cr4 = cr4 & (~0x200000); // if support smap, need disab smap, every core need disable
-    __write_cr4(cr4);
-    cr4 = __read_cr4();
-    printk("cr4 is 0x%x \n", cr4);
-*/
     devno = MKDEV(major, 0);
     if (major)
     {
@@ -121,25 +113,22 @@ static int isrhook_init(void)
     {
         return 1;
     }
-    data =  read_mmio_32bit_by_pagehelper(0xfed00010, page_helper);
+    data =  read_mmio_32bit_by_pagehelper(0xfee00320, page_helper);
     printk(KERN_ALERT "isrhook data by mypage is 0x%016llx\n", (uint64_t)data);
-    //set_bit(data,17);
-    //write_mmio_32bit_by_pagehelper(lapic_base_pa + 0x320,data, page_helper);
+
+    core = get_core_initial_apic_id();
+    printk("core is 0x%x\n",core);
+    core = 0;
+    backup_idt_gate_descriptors(core);
+    
+    register_hook_isr(core, hook_core0_isr_asm_fun, APICTIME_VECTOR);
+
+    mdelay(10);
+    restore_idtrs(core);
     free_continuous_page(page_helper);
 
-    //data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
-    //printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
-    //clear_bit(data,17);
-    //printk(KERN_ALERT "isrhook data is 0x%016llx\n",(uint64_t)data);
-
-    //write_mmio_32bit_by_ioremap(lapic_base_pa + 0x320,data);
+    printk("hook_flag is 0x%x\n", hook_flag);
    
-    //data = read_mmio_32bit_by_ioremap(lapic_base_pa + 0x320);
-    //printk(KERN_ALERT "isrhook data by ioremap is 0x%016llx\n", (uint64_t)data);
-    
-    //cpuid_helper(1, cpuidinfo);
-    //
-    backup_idt_gate_descriptors(0);
     return 0;
 }
 

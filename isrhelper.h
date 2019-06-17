@@ -9,6 +9,14 @@
 #include "pagehelper.h"
 
 #define CORENUM 8
+#define HPETBASE 0xfed00000
+
+#define APICTIME_VECTOR 0xec
+
+
+typedef void (*hook_isr_fun_type)(void);
+
+extern unsigned char hook_flag ;
 
 #pragma pack(1)
 
@@ -40,7 +48,7 @@ typedef struct tagIDT_GATE_DESCRIPTOR
 
 /* x86\include\asm\processor.h  cpuid(. . . . . ) */
 void cpuid_helper(uint32_t id, uint32_t *buff);
-
+unsigned char get_core_initial_apic_id(void);
 uint64_t idt_descriptor_offset_to_va(IDT_GATE_DESCRIPTOR idt_gate);
 void va_to_idt_descriptor_offset(uint64_t va, IDT_GATE_DESCRIPTOR* pidat_gate);
 uint8_t get_idt_descriptor_dpl(IDT_GATE_DESCRIPTOR idt_gate);
@@ -51,6 +59,14 @@ uint8_t get_idt_descriptor_type(IDT_GATE_DESCRIPTOR idt_gate);
 uint8_t get_idt_descriptor_selector_rpl(IDT_GATE_DESCRIPTOR idt_gate);
 void  set_idt_descriptor_selector_rpl(IDT_GATE_DESCRIPTOR* pidt_gate, uint8_t rpl);
 void backup_idt_gate_descriptors(unsigned char core);
-
+void restore_idtrs(unsigned char core);
+void save_rtc(void);
+void restore_rtc(void);
+void save_hpet(struct tagMyPageHelper page_helper);
+void restore_hpet(struct tagMyPageHelper page_helper);
+uint64_t save_tsc(void);
+void restore_tsc(uint64_t tsc);
+void hook_core0_isr_c_fun(void);
+void register_hook_isr(unsigned char core, hook_isr_fun_type hookisr, unsigned char vector);
 
 #endif

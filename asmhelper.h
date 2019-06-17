@@ -7,6 +7,6 @@ void save_fpu_mmx_xmm_mxcsr_state(void* addr);
 
 void save_processor_extended_state(void* addr);
 
-void hook_core0_isr_fun(void);
+void hook_core0_isr_asm_fun(void);
 
 #endif
