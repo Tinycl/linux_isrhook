@@ -7,6 +7,7 @@
 #include <asm/hpet.h>
 #include "typehelper.h"
 #include "pagehelper.h"
+#include "asmhelper.h"
 
 #define CORENUM 8
 #define HPETBASE 0xfed00000
@@ -58,15 +59,17 @@ void set_idt_descriptor_present(IDT_GATE_DESCRIPTOR* pidt_gate);
 uint8_t get_idt_descriptor_type(IDT_GATE_DESCRIPTOR idt_gate);
 uint8_t get_idt_descriptor_selector_rpl(IDT_GATE_DESCRIPTOR idt_gate);
 void  set_idt_descriptor_selector_rpl(IDT_GATE_DESCRIPTOR* pidt_gate, uint8_t rpl);
-void backup_idt_gate_descriptors(unsigned char core);
-void restore_idtrs(unsigned char core);
+void backup_and_new_idt_gate_descriptors(unsigned char core, IDT_GATE_DESCRIPTOR *new_idt_table_gates, IDTR *backupidtrs);
+void restore_idtrs(unsigned char core, IDTR *backupidtrs);
 void save_rtc(void);
 void restore_rtc(void);
 void save_hpet(struct tagMyPageHelper page_helper);
 void restore_hpet(struct tagMyPageHelper page_helper);
 uint64_t save_tsc(void);
 void restore_tsc(uint64_t tsc);
-void hook_core0_isr_c_fun(void);
-void register_hook_isr(unsigned char core, hook_isr_fun_type hookisr, unsigned char vector);
-
+void user_isr_c_fun(void);
+void hook_one_core_isr(unsigned char core, hook_isr_fun_type hookisr, unsigned char vector,\
+                       IDT_GATE_DESCRIPTOR *new_idt_table_gates, IDTR *backupidtrs, uint64_t *origin_isr_addr);
+void register_hook(void);
+void unregister_hook(void);
 #endif

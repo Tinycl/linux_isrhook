@@ -64,7 +64,6 @@ static int isrhook_init(void)
     /**/
  
     uint32_t data;
-    unsigned char core;
     /**/
     devno = MKDEV(major, 0);
     if (major)
@@ -116,19 +115,14 @@ static int isrhook_init(void)
     data =  read_mmio_32bit_by_pagehelper(0xfee00320, page_helper);
     printk(KERN_ALERT "isrhook data by mypage is 0x%016llx\n", (uint64_t)data);
 
-    core = get_core_initial_apic_id();
-    printk("core is 0x%x\n",core);
-    core = 0;
-    backup_idt_gate_descriptors(core);
-    
-    register_hook_isr(core, hook_core0_isr_asm_fun, APICTIME_VECTOR);
+    register_hook();
 
     mdelay(10);
-    restore_idtrs(core);
+   
     free_continuous_page(page_helper);
 
     printk("hook_flag is 0x%x\n", hook_flag);
-   
+    unregister_hook();
     return 0;
 }
 
